@@ -17,14 +17,8 @@ body {
     flex-direction: column;
 }
 
-.sidebar-header {
-    margin-bottom: 20px;
-}
-
-.sidebar-header h2 {
-    margin-top: 0;
-    font-size: 1.5em;
-}
+.sidebar-header { margin-bottom: 20px; }
+.sidebar-header h2 { margin-top: 0; font-size: 1.5em; }
 
 #newChatBtn {
     width: 100%;
@@ -45,20 +39,10 @@ body {
     background: #2a2a2a;
     transition: background 0.2s ease;
 }
+.chat-item:hover  { background: #3a3a3a; }
+.chat-item.active { background: #3d3d3d; }
 
-.chat-item:hover {
-    background: #3a3a3a;
-}
-
-.chat-item.active {
-    background: #3d3d3d;
-}
-
-.chat-title {
-    font-weight: bold;
-    margin-bottom: 4px;
-}
-
+.chat-title { font-weight: bold; margin-bottom: 4px; }
 .chat-preview {
     font-size: 0.8em;
     color: #aaa;
@@ -67,31 +51,17 @@ body {
     text-overflow: ellipsis;
 }
 
-#main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
+#main { flex: 1; display: flex; flex-direction: column; }
 
-#chatContainer {
-    flex: 1;
-    overflow-y: auto;
-    padding: 20px;
-}
+#chatContainer { flex: 1; overflow-y: auto; padding: 20px; }
 
 .message {
     margin-bottom: 20px;
     max-width: 800px;
     white-space: pre-wrap;
 }
-
-.user {
-    text-align: right;
-}
-
-.assistant {
-    text-align: left;
-}
+.user      { text-align: right; }
+.assistant { text-align: left; }
 
 .bubble {
     display: inline-block;
@@ -101,14 +71,11 @@ body {
     max-width: 80%;
 }
 
-.user .bubble {
-    background: #2d7dff;
-    margin-left: auto;
-}
+/* Override pre-wrap for markdown bubbles so HTML block elements lay out correctly */
+.bubble.markdown { white-space: normal; }
 
-.assistant .bubble {
-    background: #2f2f2f;
-}
+.user .bubble      { background: #2d7dff; margin-left: auto; }
+.assistant .bubble { background: #2f2f2f; }
 
 .copy-btn, .retry-btn {
     font-size: 12px;
@@ -119,10 +86,7 @@ body {
     align-items: center;
     gap: 4px;
 }
-
-.copy-btn:hover, .retry-btn:hover {
-    color: #fff;
-}
+.copy-btn:hover, .retry-btn:hover { color: #fff; }
 
 #inputArea {
     display: flex;
@@ -171,14 +135,121 @@ button {
 }
 
 @keyframes pulse {
-    0% { opacity: 0.4; }
-    50% { opacity: 1; }
+    0%   { opacity: 0.4; }
+    50%  { opacity: 1;   }
     100% { opacity: 0.4; }
 }
 
-/* Responsive design */
 @media (max-width: 768px) {
-    #sidebar {
-        display: none;
-    }
+    #sidebar { display: none; }
 }
+
+
+/* ---------------------------------------------------------------------------
+   Markdown rendering inside assistant bubbles
+   --------------------------------------------------------------------------- */
+
+.bubble.markdown > *:first-child { margin-top: 0; }
+.bubble.markdown > *:last-child  { margin-bottom: 0; }
+
+.bubble.markdown p {
+    margin: 0 0 0.75em 0;
+    line-height: 1.6;
+}
+
+.bubble.markdown h1,
+.bubble.markdown h2,
+.bubble.markdown h3,
+.bubble.markdown h4 {
+    margin: 1em 0 0.4em 0;
+    font-weight: 600;
+    line-height: 1.3;
+}
+.bubble.markdown h1 { font-size: 1.3em; }
+.bubble.markdown h2 { font-size: 1.15em; }
+.bubble.markdown h3 { font-size: 1.05em; }
+.bubble.markdown h4 { font-size: 1em; }
+
+.bubble.markdown ul,
+.bubble.markdown ol {
+    margin: 0.5em 0 0.75em 0;
+    padding-left: 1.5em;
+}
+.bubble.markdown li {
+    margin-bottom: 0.25em;
+    line-height: 1.5;
+}
+.bubble.markdown li > ul,
+.bubble.markdown li > ol { margin: 0.25em 0; }
+
+/* Inline code */
+.bubble.markdown code {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+    padding: 0.15em 0.4em;
+    font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+    font-size: 0.88em;
+}
+
+/* Fenced code blocks */
+.bubble.markdown pre {
+    background: #1a1a1a;
+    border: 1px solid #3a3a3a;
+    border-radius: 8px;
+    padding: 1em 1.2em;
+    overflow-x: auto;
+    margin: 0.75em 0;
+}
+.bubble.markdown pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 0.87em;
+    line-height: 1.5;
+    color: #e2e8f0;
+}
+
+/* Blockquotes */
+.bubble.markdown blockquote {
+    border-left: 3px solid #4a8fff;
+    margin: 0.75em 0;
+    padding: 0.4em 0 0.4em 1em;
+    color: #aaa;
+    font-style: italic;
+}
+.bubble.markdown blockquote > p { margin: 0; }
+
+/* Tables */
+.bubble.markdown table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 0.75em 0;
+    font-size: 0.9em;
+}
+.bubble.markdown th,
+.bubble.markdown td {
+    border: 1px solid #3a3a3a;
+    padding: 0.45em 0.75em;
+    text-align: left;
+}
+.bubble.markdown th {
+    background: #1a1a1a;
+    font-weight: 600;
+}
+.bubble.markdown tr:nth-child(even) td {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.bubble.markdown hr {
+    border: none;
+    border-top: 1px solid #3a3a3a;
+    margin: 1em 0;
+}
+
+.bubble.markdown a { color: #4a8fff; text-decoration: none; }
+.bubble.markdown a:hover { text-decoration: underline; }
+
+.bubble.markdown strong { font-weight: 600; }
+.bubble.markdown em     { font-style: italic; color: #ddd; }
+.bubble.markdown del    { opacity: 0.6; }

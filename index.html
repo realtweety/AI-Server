@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WilburtAI Micro Server</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div id="sidebar">
+        <div class="sidebar-header">
+            <h2>WilburtAI</h2>
+            <button id="newChatBtn">+ New Chat</button>
+        </div>
+        <div id="chatList"></div>
+    </div>
+
+    <div id="main">
+        <div id="chatContainer">
+            <!-- Chat messages will appear here -->
+        </div>
+
+        <div id="inputArea">
+            <select id="modelSelect"></select>
+            <textarea id="messageInput" placeholder="Message WilburtAI..." onkeypress="if(event.key==='Enter' && !event.shiftKey) { sendMessage(); event.preventDefault(); }"></textarea>
+            <button id="sendBtn">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Markdown parser -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+    <!-- HTML sanitizer — keeps marked.js output safe against XSS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
