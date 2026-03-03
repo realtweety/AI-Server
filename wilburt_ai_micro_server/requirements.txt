@@ -1,0 +1,10 @@
+Flask==2.3.3
+Flask-SQLAlchemy==3.0.5
+Flask-Login==0.6.3
+# FIX: Pin Werkzeug explicitly. Flask depends on it transitively but without a pin,
+# pip may resolve a version where generate_password_hash / check_password_hash
+# behave differently (the default hash changed from sha256 to scrypt in 2.x→3.x),
+# which silently breaks login for any accounts registered under the old version.
+Werkzeug==2.3.7
+python-dotenv==1.0.0
+requests==2.31.0
