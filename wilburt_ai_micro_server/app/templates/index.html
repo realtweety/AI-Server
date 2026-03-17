@@ -1,0 +1,465 @@
+<!-- app/templates/index.html -->
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <title>WilburtAI</title>
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="{{ url_for('static', filename='favicon.svg') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css"
+      id="hljs-theme"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body>
+    <!-- Liquid Glass animated wallpaper canvas -->
+    <canvas id="glassBg" aria-hidden="true"></canvas>
+    <!-- SVG filter for glass lensing/refraction distortion -->
+    <svg id="glassSvgFilters" aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
+      <defs>
+        <filter id="glass-lens" x="-10%" y="-10%" width="120%" height="120%" color-interpolation-filters="sRGB">
+          <feTurbulence type="fractalNoise" baseFrequency="0.018 0.012" numOctaves="2" seed="5" result="noise"/>
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale="6" xChannelSelector="R" yChannelSelector="G" result="displaced"/>
+          <feComposite in="displaced" in2="SourceGraphic" operator="in"/>
+        </filter>
+        <filter id="glass-lens-strong" x="-15%" y="-15%" width="130%" height="130%" color-interpolation-filters="sRGB">
+          <feTurbulence type="fractalNoise" baseFrequency="0.012 0.008" numOctaves="3" seed="3" result="noise"/>
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale="12" xChannelSelector="R" yChannelSelector="G" result="displaced"/>
+          <feComposite in="displaced" in2="SourceGraphic" operator="in"/>
+        </filter>
+      </defs>
+    </svg>
+    <div id="sidebarOverlay"></div>
+    <div id="appShell">
+      <!-- ══════════════════ SIDEBAR ══════════════════ -->
+      <aside id="sidebar">
+        <div id="resizeHandle"></div>
+        <div class="sidebar-header">
+          <div class="sidebar-brand">
+            <span class="brand-logo">W</span>
+            <span class="brand-name">WilburtAI</span>
+          </div>
+          <div class="sidebar-header-actions">
+            <!-- Liquid Glass toggle -->
+            <button id="liquidGlassBtn" title="Liquid Glass" aria-pressed="false">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <ellipse cx="12" cy="12" rx="9" ry="9"/>
+                <path d="M8.5 8.5 Q12 5.5 15.5 8.5 Q18 13 12 18 Q6 13 8.5 8.5Z" fill="currentColor" opacity="0.25" stroke="none"/>
+                <path d="M9.5 8 Q11.5 7 13.5 8" stroke-width="1.5" opacity="0.9"/>
+              </svg>
+            </button>
+            <!-- Web tools toggle -->
+            <button id="webToolsBtn" title="Web tools" aria-pressed="false">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="2" y1="12" x2="22" y2="12"/>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+              </svg>
+            </button>
+            <button id="themeToggleBtn" title="Toggle light/dark">
+              <svg
+                id="themeIcon"
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+              </svg>
+            </button>
+            <button id="accentPickerBtn" title="Accent colour">
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="13.5" cy="6.5" r="2.5" />
+                <circle cx="19" cy="13" r="2.5" />
+                <circle cx="6" cy="13" r="2.5" />
+                <circle cx="10" cy="20" r="2.5" />
+              </svg>
+            </button>
+            <input
+              type="color"
+              id="accentColorInput"
+              value="#2d7dff"
+              title="Pick accent colour"
+            />
+            <button id="newChatBtn">+ New Chat</button>
+          </div>
+        </div>
+        <div id="searchWrapper">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="search-icon"
+          >
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          <input
+            type="text"
+            id="chatSearch"
+            placeholder="Search chats…"
+            autocomplete="off"
+          />
+          <button id="clearSearchBtn" style="display: none" title="Clear">
+            ✕
+          </button>
+        </div>
+        <div id="searchResultsPanel" class="hidden"></div>
+        <div id="chatList"></div>
+        <!-- Memory panel -->
+        <div class="sidebar-section" id="memorySection">
+          <button class="section-toggle" id="memoryToggle">
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z" />
+              <path d="M12 8v4l3 3" />
+            </svg>
+            Memory <span class="chevron">▾</span>
+          </button>
+          <div class="section-body" id="memoryBody">
+            <div style="padding: 6px 10px 10px">
+              <textarea
+                id="memoryTextarea"
+                placeholder="Notes the AI will always remember&#10;e.g. I prefer concise answers. I use Python 3.12."
+              ></textarea>
+              <button id="memorySaveBtn">Save memory</button>
+              <p class="memory-hint">
+                Injected into every conversation's system prompt automatically.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div id="sidebarFooter">
+          <a id="adminLink" href="/admin/" style="display: none"
+            >⚙ Admin Panel</a
+          >
+          <div id="connStatus" title="Connection status"></div>
+        </div>
+      </aside>
+      <!-- ══════════════════ MAIN ══════════════════ -->
+      <div id="main">
+        <!-- Topbar -->
+        <div id="topbar">
+          <button id="sidebarToggleBtn" title="Toggle sidebar">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <line x1="3" y1="12" x2="21" y2="12" />
+              <line x1="3" y1="18" x2="21" y2="18" />
+            </svg>
+          </button>
+          <span id="topbarTitle"></span>
+          <div id="topbarActions">
+            <button id="inChatSearchBtn" title="Search in chat (Ctrl+F)">
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+            </button>
+          </div>
+        </div>
+        <!-- In-chat search bar -->
+        <div id="inChatSearchBar" style="display: none">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            style="flex-shrink: 0; color: var(--text3)"
+          >
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          <input
+            type="text"
+            id="inChatSearchInput"
+            placeholder="Search messages…"
+            autocomplete="off"
+          />
+          <span id="inChatSearchCount"></span>
+          <button id="inChatSearchPrev" title="Previous">↑</button>
+          <button id="inChatSearchNext" title="Next">↓</button>
+          <button id="inChatSearchClose" title="Close">✕</button>
+        </div>
+        <!-- Prune warning -->
+        <div id="pruneWarning" style="display: none">
+          ⚠ Some earlier messages were trimmed to fit the model's context
+          window. <button id="pruneWarningClose">✕</button>
+        </div>
+        <!-- Empty state -->
+        <div id="emptyState">
+          <div class="empty-logo">W</div>
+          <h1>WilburtAI</h1>
+          <p>
+            Select a chat or start a new one.<br />Paste or drag files. Upload
+            docs for RAG.
+          </p>
+          <button id="emptyNewChatBtn">+ New Chat</button>
+        </div>
+        <!-- Loading skeleton -->
+        <div id="chatSkeleton" style="display: none">
+          <div class="skeleton-msg user">
+            <div class="skeleton-bubble"></div>
+          </div>
+          <div class="skeleton-msg assistant">
+            <div class="skeleton-bubble wide"></div>
+          </div>
+          <div class="skeleton-msg user">
+            <div class="skeleton-bubble short"></div>
+          </div>
+          <div class="skeleton-msg assistant">
+            <div class="skeleton-bubble"></div>
+          </div>
+        </div>
+        <div id="chatContainer" style="display: none"></div>
+        <button
+          id="scrollToBottomBtn"
+          title="Jump to bottom"
+          style="display: none"
+        >
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </button>
+        <!-- Settings inputs — hidden, no UI, values managed via localStorage -->
+        <div id="settingsPopover" style="display:none" aria-hidden="true">
+          <div class="settings-popover-inner">
+            <div class="settings-row">
+              <div class="settings-group full-width">
+                <label for="systemPromptInput">System Prompt</label>
+                <textarea id="systemPromptInput" rows="3"></textarea>
+                <button id="saveSystemPromptBtn">Save</button>
+              </div>
+            </div>
+            <div class="settings-row">
+              <div class="settings-group">
+                <label>Temperature: <span id="tempDisplay">0.7</span></label>
+                <input type="range" id="temperatureSlider" min="0" max="2" step="0.05" value="0.7" />
+              </div>
+              <div class="settings-group">
+                <label for="maxTokensInput">Max Response Tokens</label>
+                <input type="number" id="maxTokensInput" min="-1" max="32768" value="-1" />
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Input area -->
+        <div id="inputWrapper">
+          <div id="imagePreviewStrip" style="display: none"></div>
+          <!-- Upload progress bar -->
+          <div id="uploadProgressWrap" style="display: none">
+            <div id="uploadProgressBar"></div>
+            <span id="uploadProgressLabel"></span>
+          </div>
+          <div id="inputRow">
+            <!-- Model selector -->
+            <select id="modelSelect" title="Select model"></select>
+            <!-- Unified attach button -->
+            <button id="attachBtn" title="Attach files or folder">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+            </button>
+            <!-- Hidden file inputs -->
+            <input
+              type="file"
+              id="attachFileInput"
+              accept="*"
+              multiple
+              style="display: none"
+            />
+            <input
+              type="file"
+              id="folderFileInput"
+              webkitdirectory
+              multiple
+              style="display: none"
+            />
+            <!-- Attach dropdown -->
+            <div id="attachMenu" class="hidden">
+              <button id="attachFilesBtn">📎 Files</button>
+              <button id="attachFolderBtn">📁 Folder</button>
+            </div>
+            <textarea
+              id="messageInput"
+              rows="1"
+              placeholder="Message WilburtAI… (Enter to send, Shift+Enter for new line)"
+            ></textarea>
+            <!-- Single morphing action button -->
+            <button id="actionBtn" class="action-send" title="Send message">
+              <svg
+                class="icon-send"
+                width="32"
+                height="32"
+                viewBox="0 0 32 32"
+                fill="none"
+              >
+                <circle cx="16" cy="16" r="16" fill="white" />
+                <path d="M16 9l7 8H9l7-8z" fill="#202123" />
+                <rect
+                  x="13"
+                  y="17"
+                  width="6"
+                  height="7"
+                  rx="1"
+                  fill="#202123"
+                />
+              </svg>
+              <svg
+                class="icon-stop"
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <rect x="4" y="4" width="16" height="16" rx="3" />
+              </svg>
+            </button>
+          </div>
+          <div id="inputMeta"><span id="tokenCounter">—</span></div>
+        </div>
+        <!-- Mobile bottom navigation -->
+        <nav id="mobileNav">
+          <button id="mobileNavChats" class="mobile-nav-btn" title="Chats">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+              />
+            </svg>
+            <span>Chats</span>
+          </button>
+          <button id="mobileNavNew" class="mobile-nav-btn" title="New Chat">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            <span>New</span>
+          </button>
+          <button id="mobileNavSearch" class="mobile-nav-btn" title="Search">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            <span>Search</span>
+          </button>
+        </nav>
+      </div>
+      <!-- /main -->
+    </div>
+    <!-- /appShell -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+  </body>
+</html>
