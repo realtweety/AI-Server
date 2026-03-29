@@ -1,0 +1,8 @@
+# app/models/__init__.py
+"""
+WilburtAI Micro Server - Models Package
+"""
+
+from .chat import User, Chat, Message, UserMemory, Document, Chunk
+
+__all__ = ['User', 'Chat', 'Message', 'UserMemory', 'Document', 'Chunk']
